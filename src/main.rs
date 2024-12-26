@@ -35,6 +35,14 @@ fn handle_client(mut stream: TcpStream) {
                         };
                         stream.write(response.as_bytes()).unwrap();
                     }
+                    Some (cmd) if cmd == "DEL" && parts.len() >= 2 => {
+                        let key = parts[1].clone();
+                        let response = match data.remove(&key) {
+                            Some(_) => "1\n",   // 1 key was removed
+                            None => "0\n"       // no key existed
+                        };
+                        stream.write(response.as_bytes()).unwrap();
+                    }
                     _=> {
                         stream.write(b"ERROR: Unknown command\n").unwrap();
                     }
@@ -48,7 +56,7 @@ fn handle_client(mut stream: TcpStream) {
     }
 }
 
-let listener = TcpListener::bind("0.0.0.0:8080").unwrap();
+let listener = TcpListener::bind("0.0.0.0:6379").unwrap();
 
 // accept connections and process them serially
 for stream in listener.incoming() {
