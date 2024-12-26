@@ -43,6 +43,14 @@ fn handle_client(mut stream: TcpStream) {
                         };
                         stream.write(response.as_bytes()).unwrap();
                     }
+                    Some (cmd) if cmd == "EXISTS" && parts.len() >= 2 => {
+                        let key = parts[1].clone();
+                        let response = match data.contains_key(&key) {
+                            true => "1\n",
+                            false => "0\n",
+                        };
+                        stream.write(response.as_bytes()).unwrap();
+                    }
                     _=> {
                         stream.write(b"ERROR: Unknown command\n").unwrap();
                     }
